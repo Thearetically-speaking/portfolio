@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thea Lu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kode+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --sidebar-w: 210px;
+  --bg: #F7F9FA;
+  --blue: #3A86FF;
+  --coral: #FF6B6B;
+  --purple: #5E239D;
+  --lilac: #B185DB;
+  --text: #1A1C1E;
+  --soft: #7A8290;
+  --border: rgba(0,0,0,0.06);
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  font-family: 'Kode Mono', monospace;
+  font-weight: 400;
+  color: var(--text);
+  font-size: 16px; /* was 13px → 16px (~25% up) */
+}
+
+/* ── GRAIN ── */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 128px;
+}
+
+/* ── AURAS ── */
+.aura {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(90px);
+  animation: drift 20s ease-in-out infinite;
+}
+.aura-1 {
+  width: 520px; height: 520px;
+  background: radial-gradient(circle, rgba(58,134,255,0.3) 0%, rgba(94,35,157,0.1) 50%, transparent 65%);
+  top: -120px; right: -40px;
+}
+.aura-2 {
+  width: 440px; height: 440px;
+  background: radial-gradient(circle, rgba(177,133,219,0.25) 0%, rgba(255,107,107,0.1) 50%, transparent 65%);
+  bottom: -40px; left: 280px;
+  animation-delay: -7s;
+}
+.aura-3 {
+  width: 380px; height: 380px;
+  background: radial-gradient(circle, rgba(255,107,107,0.2) 0%, rgba(58,134,255,0.08) 50%, transparent 65%);
+  top: 50vh; right: 25vw;
+  animation-delay: -14s;
+}
+@keyframes drift {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  25% { transform: translate(35px,-30px) scale(1.07); }
+  50% { transform: translate(-20px,25px) scale(0.94); }
+  75% { transform: translate(25px,18px) scale(1.04); }
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: var(--sidebar-w);
+  padding: 36px 22px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+.sidebar-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 40px;
+  text-decoration: none;
+  color: var(--text);
+  cursor: pointer;
+  display: block;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.sidebar-section { margin-bottom: 24px; }
+
+.sidebar-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin-bottom: 12px;
+  display: block;
+  font-weight: 600;
+}
+
+.sidebar-links { list-style: none; display: flex; flex-direction: column; gap: 3px; }
+
+.sidebar-links a {
+  font-size: 0.85rem;
+  color: var(--text);
+  text-decoration: none;
+  line-height: 1.7;
+  display: block;
+  transition: color 0.12s;
+}
+.sidebar-links a:hover { color: var(--blue); }
+.sidebar-links a.active { color: var(--blue); font-weight: 600; }
+
+.sidebar-archive { margin-top: auto; }
+
+.sidebar-bottom {
+  margin-top: 14px;
+  font-size: 0.72rem;
+  color: var(--soft);
+  line-height: 2;
+}
+.sidebar-bottom a { color: var(--soft); text-decoration: none; transition: color 0.12s; }
+.sidebar-bottom a:hover { color: var(--blue); }
+
+/* ── MAIN ── */
+#main {
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── HOME ── */
+#page-home { padding: 0; }
+.projects-index { columns: 2; column-gap: 0; }
+
+.project-thumb {
+  break-inside: avoid;
+  margin-bottom: 0;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  display: block;
+}
+.project-thumb .img-wrap { display: block; width: 100%; overflow: hidden; position: relative; }
+
+/* ── COVER TINT (non-gif covers, 60% infill, desaturated) ── */
+.img-wrap.tinted::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.6;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  transition: opacity 0.5s ease;
+}
+.project-thumb:hover .img-wrap.tinted::after { opacity: 0; }
+/* Desaturated tints — muted versions of the brand palette */
+.img-wrap.tint-blue::after   { background: #7A8FAB; }
+.img-wrap.tint-coral::after  { background: #BC9090; }
+.img-wrap.tint-purple::after { background: #6F5588; }
+.img-wrap.tint-lilac::after  { background: #A89DB6; }
+
+.project-thumb img,
+.project-thumb .placeholder {
+  width: 100%;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.project-thumb:hover img,
+.project-thumb:hover .placeholder { transform: scale(1.04); }
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.placeholder::before {
+  content: '';
+  position: absolute;
+  width: 45%; height: 45%;
+  border-radius: 50%;
+  filter: blur(38px);
+  opacity: 0.1;
+  pointer-events: none;
+  transition: opacity 0.4s, transform 0.6s;
+  transform: translate(-10%,10%);
+  background: var(--blue);
+}
+.placeholder::after {
+  content: '';
+  position: absolute;
+  width: 35%; height: 35%;
+  border-radius: 50%;
+  filter: blur(32px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s;
+  transform: translate(15%,-15%);
+  background: var(--coral);
+}
+.project-thumb:hover .placeholder::before { opacity: 0.5; transform: translate(-10%,10%) scale(1.2); }
+.project-thumb:hover .placeholder::after { opacity: 0.5; }
+
+.placeholder span {
+  color: rgba(255,255,255,0.16);
+  font-size: 0.72rem;
+  text-align: center;
+  padding: 16px;
+  position: relative;
+  z-index: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Glow combos */
+.glow-blue-lilac::before { background: var(--blue); }
+.glow-blue-lilac::after { background: var(--lilac); }
+.glow-coral-purple::before { background: var(--coral); }
+.glow-coral-purple::after { background: var(--purple); }
+.glow-purple-blue::before { background: var(--purple); }
+.glow-purple-blue::after { background: var(--blue); }
+.glow-lilac-coral::before { background: var(--lilac); }
+.glow-lilac-coral::after { background: var(--coral); }
+.glow-blue-coral::before { background: var(--blue); }
+.glow-blue-coral::after { background: var(--coral); }
+.glow-coral-lilac::before { background: var(--coral); }
+.glow-coral-lilac::after { background: var(--lilac); }
+
+.thumb-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 32px 16px 14px;
+  background: linear-gradient(transparent, rgba(26,28,30,0.6));
+  opacity: 0;
+  transition: opacity 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.project-thumb:hover .thumb-overlay { opacity: 1; }
+
+.thumb-title {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.thumb-meta {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+}
+/* Catlike hero cycling */
+.catlike-slide {
+  position: absolute;
+  top: 0; left: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.catlike-slide.catlike-active {
+  position: relative;
+  opacity: 1;
+}
+
+/* External link indicator */
+.thumb-ext { font-size: 0.6rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+/* ── PROJECT ── */
+#page-project { padding: 48px 56px 100px; }
+
+.back-btn {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--soft);
+  background: none; border: none;
+  font-family: 'Kode Mono', monospace;
+  cursor: pointer;
+  margin-bottom: 36px;
+  padding: 0;
+  transition: color 0.12s;
+  font-weight: 500;
+}
+.back-btn:hover { color: var(--text); }
+
+.proj-h1 {
+  font-size: clamp(2rem, 4.5vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.proj-meta {
+  font-size: 0.8rem;
+  color: var(--soft);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 52px;
+  font-weight: 500;
+}
+
+.proj-body {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 60px;
+  align-items: start;
+}
+
+.proj-media { display: flex; flex-direction: column; gap: 3px; }
+.proj-media img { width: 100%; display: block; }
+.proj-media .placeholder { width: 100%; }
+
+/* Square photos arranged 2-col grid (becomes 2×2 when there are 4) */
+.proj-media-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+}
+.proj-media-grid img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  display: block;
+}
+
+/* Embedded videos (Vimeo / YouTube) */
+.proj-video {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+  overflow: hidden;
+}
+.proj-video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.proj-sidebar { position: sticky; top: 48px; }
+
+.proj-desc { font-size: 0.9rem; line-height: 2; margin-bottom: 36px; }
+.proj-desc p + p { margin-top: 16px; }
+
+.proj-facts {
+  border-top: 2px solid var(--blue);
+  padding-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.fact-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--soft);
+  display: block;
+  margin-bottom: 3px;
+  font-weight: 600;
+}
+.fact-value { font-size: 0.85rem; line-height: 1.6; }
+.fact-value a {
+  color: var(--blue);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(58,134,255,0.35);
+  transition: border-color 0.12s, opacity 0.12s;
+}
+.fact-value a:hover { border-color: var(--blue); opacity: 0.75; }
+
+.ext-link {
+  display: inline-block;
+  margin-top: 28px;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--blue);
+  text-decoration: none;
+  border-bottom: 2px solid var(--coral);
+  padding-bottom: 3px;
+  transition: opacity 0.12s;
+}
+.ext-link:hover { opacity: 0.7; }
+
+/* ── ABOUT ── */
+#page-about { padding: 80px 60px 100px; max-width: 960px; }
+
+#page-about h1 {
+  font-size: clamp(2.5rem, 5.5vw, 4.2rem);
+  font-weight: 700;
+  line-height: 1.05;
+  margin-bottom: 52px;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+.a-blue { color: var(--blue); }
+.a-coral { color: var(--coral); }
+.a-purple { color: var(--purple); }
+
+.about-text { font-size: 0.95rem; line-height: 2; max-width: 620px; }
+.about-text p + p { margin-top: 18px; }
+
+.about-grid {
+  margin-top: 56px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 36px 48px;
+  max-width: 700px;
+}
+.about-grid h3 {
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.about-grid ul { list-style: none; font-size: 0.85rem; line-height: 1.95; }
+.about-grid a { color: inherit; text-decoration: none; transition: color 0.12s; }
+.about-grid a:hover { color: var(--blue); }
+
+/* ── ARCHIVE 2×2 ── */
+#page-archive { padding: 48px 56px 100px; }
+
+.archive-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+}
+.archive-card {
+  display: block;
+  text-decoration: none;
+  color: var(--text);
+  overflow: hidden;
+  transition: transform 0.4s ease;
+}
+.archive-card:hover { transform: translateY(-3px); }
+
+.archive-card-img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.5s ease;
+}
+.archive-card:hover .archive-card-img { transform: scale(1.03); }
+.archive-card-img::before {
+  content: '';
+  position: absolute;
+  width: 45%; height: 45%;
+  border-radius: 50%;
+  filter: blur(35px);
+  opacity: 0.1;
+  pointer-events: none;
+  transition: opacity 0.4s;
+  background: var(--blue);
+}
+.archive-card:hover .archive-card-img::before { opacity: 0.45; }
+.archive-card-img span {
+  color: rgba(255,255,255,0.16);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  position: relative;
+  z-index: 1;
+}
+.archive-card-info {
+  padding: 16px 2px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.archive-card-info strong {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.archive-card-info span {
+  font-size: 0.78rem;
+  color: var(--soft);
+  line-height: 1.6;
+}
+.archive-card-cta {
+  margin-top: 8px;
+  font-size: 0.72rem !important;
+  font-weight: 600;
+  color: var(--blue) !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: opacity 0.12s;
+}
+.archive-card:hover .archive-card-cta { opacity: 0.7; }
+
+/* ── MOBILE ── */
+@media (max-width: 720px) {
+  :root { --sidebar-w: 0px; }
+  #sidebar {
+    position: relative; width: 100%;
+    flex-direction: row; flex-wrap: wrap;
+    align-items: center; gap: 0 16px;
+    padding: 18px 18px 14px;
+    border-right: none; border-bottom: 1px solid var(--border);
+    overflow-y: visible;
+  }
+  .sidebar-name { margin-bottom: 0; font-size: 0.95rem; }
+  .sidebar-section { margin-bottom: 0; }
+  .sidebar-label { display: none; }
+  .sidebar-links { flex-direction: row; gap: 0 14px; flex-wrap: wrap; }
+  .sidebar-bottom { display: none; }
+  .sidebar-archive { margin-top: 0; }
+  #main { margin-left: 0; }
+  #page-home { padding: 0; }
+  .projects-index { columns: 1; }
+  .proj-body { grid-template-columns: 1fr; }
+  .proj-sidebar { position: static; }
+  #page-project { padding: 28px 18px 80px; }
+  #page-about { padding: 40px 18px 80px; }
+  #page-archive { padding: 28px 18px 80px; }
+  .about-grid { grid-template-columns: 1fr; gap: 28px; }
+  .archive-hero-grid { grid-template-columns: 1fr; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="aura aura-1"></div>
+<div class="aura aura-2"></div>
+<div class="aura aura-3"></div>
+
+<nav id="sidebar">
+  <a class="sidebar-name" onclick="showPage('home')">Thea Lu</a>
+  <div class="sidebar-section">
+    <span class="sidebar-label">Work</span>
+    <ul class="sidebar-links" id="proj-nav">
+      <li><a href="#" onclick="openProject('catlike');return false;" data-id="catlike">CatLike</a></li>
+      <li><a href="#" onclick="openProject('sostrong');return false;" data-id="sostrong">So STRONG</a></li>
+      <li><a href="#" onclick="openProject('allyoucanseal');return false;" data-id="allyoucanseal">All You Can Seal</a></li>
+      <li><a href="#" onclick="openProject('safari');return false;" data-id="safari">Play Safari Flutter High</a></li>
+      <li><a href="#" onclick="openProject('gazed');return false;" data-id="gazed">Gazed</a></li>
+      <li><a href="#" onclick="openProject('escapism');return false;" data-id="escapism">Escapism in Echo</a></li>
+      <li><a href="#" onclick="openProject('pawer');return false;" data-id="pawer">PawerUP</a></li>
+      <li><a href="#" onclick="openProject('beyourguide');return false;" data-id="beyourguide">Be your Guide</a></li>
+      <li><a href="#" onclick="openProject('mindfulchaos');return false;" data-id="mindfulchaos">MindfulChaos</a></li>
+      <li><a href="#" onclick="openProject('artexplorer');return false;" data-id="artexplorer">ArtExplorer</a></li>
+      <li><a href="#" onclick="openProject('etoile');return false;" data-id="etoile">L'Étoile's Shoes</a></li>
+    </ul>
+  </div>
+  <div class="sidebar-section">
+    <ul class="sidebar-links">
+      <li><a href="#" onclick="showPage('about');return false;">About</a></li>
+    </ul>
+  </div>
+
+  <div class="sidebar-section sidebar-archive">
+    <ul class="sidebar-links">
+      <li><a href="#" onclick="showPage('archive');return false;" id="archive-link">Passion Archive</a></li>
+    </ul>
+  </div>
+
+  <div class="sidebar-bottom">
+    <a href="mailto:thealujx@gmail.com">thealujx@gmail.com</a><br>
+    Toronto, CA
+  </div>
+</nav>
+
+<div id="main">
+
+  <!-- HOME -->
+  <div id="page-home" class="page active">
+    <div class="projects-index">
+
+      <div class="project-thumb" onclick="openProject('catlike')" style="column-span:all;">
+        <div class="img-wrap" style="position:relative;">
+          <img class="catlike-slide catlike-active" src="image/MainPage/Catlike/MVI_2060%20(1).gif" alt="CatLike headband" style="aspect-ratio:21/9;object-fit:cover;width:100%;display:block;">
+          <img class="catlike-slide" src="image/MainPage/Catlike/MVI_2083.gif" alt="CatLike headband motion" style="aspect-ratio:21/9;object-fit:cover;width:100%;display:none;">
+          <img class="catlike-slide" src="image/MainPage/Catlike/DSCF0447closeup.gif" alt="CatLike TPU close-up" style="aspect-ratio:21/9;object-fit:cover;width:100%;display:none;">
+          <img class="catlike-slide" src="image/MainPage/Catlike/5031_1776099007_raw.gif" alt="CatLike footwear" style="aspect-ratio:21/9;object-fit:cover;width:100%;display:none;">
+        </div>
+        <div class="thumb-overlay"><span class="thumb-title">CatLike</span><span class="thumb-meta">MDes Thesis · Emotion-Responsive Wearables · 2024–2026</span></div>
+      </div>
+
+      <div class="project-thumb" onclick="openProject('sostrong')">
+        <div class="img-wrap"><img src="image/MainPage/SoStrong/Josh.gif" alt="So STRONG" style="aspect-ratio:4/5;object-fit:cover;"></div>
+        <div class="thumb-overlay"><span class="thumb-title">So STRONG</span><span class="thumb-meta">Wearable Technology · EMG · 2025</span></div>
+      </div>
+
+      <div class="project-thumb" onclick="openProject('allyoucanseal')">
+        <div class="img-wrap tinted tint-purple"><img src="image/MainPage/All%20You%20Can%20Seal/4291772773748_.pic.jpg" alt="All You Can Seal" style="aspect-ratio:4/5;object-fit:cover;"></div>
+        <div class="thumb-overlay"><span class="thumb-title">All You Can Seal</span><span class="thumb-meta">Workshop · TPU Heat-Sealing · 2026</span></div>
+      </div>
+
+      <div class="project-thumb" onclick="openProject('etoile')">
+        <div class="img-wrap tinted tint-coral"><img src="image/MainPage/L'%C3%89toile's%20Shoes/cover.png" alt="L'Étoile's Shoes" style="aspect-ratio:16/9;object-fit:cover;"></div>
+        <div class="thumb-overlay"><span class="thumb-title">L'Étoile's Shoes</span><span class="thumb-meta">BFA Thesis · Footwear + VR · 2021–22</span></div>
+      </div>
+
+      <div class="project-thumb" onclick="openProject('safari')">
+        <div class="img-wrap tinted tint-blue"><img src="image/MainPage/Play%20Safari-Flutter%20High/cover.webp" alt="Play Safari Flutter High" style="aspect-ratio:4/3;object-fit:cover;"></div>
+        <div class="thumb-overlay"><span class="thumb-title">Play Safari Flutter High</span><span class="thumb-meta">Interactive Media · 2024</span></div>
+      </div>
+
+      <div class="project-thumb" onclick="openProject('gazed')">
+        <div class="img-wrap tinted tint-lilac"><img src="image/MainPage/Gazed/cover.webp" alt="Gazed" style="aspect-ratio:4/3;object-fit:cover;"></div>
+        <div class="thumb-overlay"><span class="thumb-title">Gazed</span><span class="thumb-meta">Surveillance · Critical Design · 2024</span></div>
+      </div>
+
+      <div class="project-thumb" onclick="openProject('escapism')">
+        <div class="img-wrap tinted tint-coral"><img src="image/MainPage/Escapism%20in%20Echo/cover.webp" alt="Escapism in Echo" style="aspect-ratio:16/9;object-fit:cover;"></div>
+        <div class="thumb-overlay"><span class="thumb-title">Escapism in Echo</span><span class="thumb-meta">Sound Installation · 2024</span></div>
+      </div>
+
+      <div class="project-thumb" onclick="openProject('pawer')">
+        <div class="img-wrap tinted tint-blue"><img src="image/MainPage/PawerUP/cat-scratcher-1024x912.png" alt="PawerUP" style="aspect-ratio:4/3;object-fit:cover;"></div>
+        <div class="thumb-overlay"><span class="thumb-title">PawerUP</span><span class="thumb-meta">Interactive Media · 2024</span></div>
+      </div>
+
+      <div class="project-thumb" onclick="openProject('beyourguide')">
+        <div class="img-wrap tinted tint-purple"><img src="image/MainPage/Be%20your%20Guide/BeYourEyeCoverr.png" alt="Be your Guide" style="aspect-ratio:16/9;object-fit:cover;"></div>
+        <div class="thumb-overlay"><span class="thumb-title">Be your Guide</span><span class="thumb-meta">Accessibility · Smart Footwear · 2023</span></div>
+      </div>
+
+      <div class="project-thumb" onclick="openProject('mindfulchaos')">
+        <div class="img-wrap tinted tint-lilac"><img src="image/MainPage/MindfulChaos/MC%20cover.png" alt="MindfulChaos" style="aspect-ratio:16/9;object-fit:cover;"></div>
+        <div class="thumb-overlay"><span class="thumb-title">MindfulChaos</span><span class="thumb-meta">Game Design · ADHD · 2023</span></div>
+      </div>
+
+      <div class="project-thumb" onclick="openProject('artexplorer')">
+        <div class="img-wrap tinted tint-blue"><img src="image/MainPage/ArtExploer/AICCoverPage.png" alt="ArtExplorer" style="aspect-ratio:4/3;object-fit:cover;"></div>
+        <div class="thumb-overlay"><span class="thumb-title">ArtExplorer</span><span class="thumb-meta">Service Design · Mobile App · 2022–23</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PROJECT -->
+  <div id="page-project" class="page">
+    <button class="back-btn" onclick="showPage('home')">← All Work</button>
+    <h1 class="proj-h1" id="proj-title"></h1>
+    <div class="proj-meta" id="proj-meta"></div>
+    <div class="proj-body">
+      <div class="proj-media" id="proj-media"></div>
+      <div class="proj-sidebar">
+        <div class="proj-desc" id="proj-desc"></div>
+        <div class="proj-facts" id="proj-facts"></div>
+        <div id="proj-link"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <div id="page-about" class="page">
+    <h1><span class="a-blue">Designer,</span><br><span class="a-coral">Researcher,</span><br><span class="a-purple">Maker.</span></h1>
+    <div class="about-text">
+      <p>Hi, I'm Thea — a designer, researcher, and maker based in Toronto, working at the blurred edge of fashion and wearable technology.</p>
+      <p>My practice lives at the intersection of soft robotics, wearable technology, and the body. I work to make technology invisible, so that what becomes visible is the body itself — its rhythms, pressures, and involuntary signals rendered as morphological change in soft materials. I'm interested in wearables that feel like garments rather than gadgets, and that respond to the wearer rather than display them to others.</p>
+      <p>I came to this work through footwear design and a year inside the fashion industry — looking for a way of putting craft, technology, and the body together that empowers the person wearing the work, rather than the system selling it.</p>
+      <p>I recently completed my MDes in Digital Futures at OCAD University, advised by Kate Hartman and Nicholas Puckett. I'm currently exploring opportunities in design research and wearable tech that take critical wearables seriously.</p>
+    </div>
+    <div class="about-grid">
+      <div>
+        <h3>Technical Skills</h3>
+        <ul>
+          <li>ESP32-S3, QT Py, Arduino</li>
+          <li>Biometric sensors (HRV, EMG, pressure)</li>
+          <li>Circuit design & soldering</li>
+          <li>Soft robotics & pneumatics</li>
+          <li>TPU heat-sealing (novel method)</li>
+          <li>3D printing, G-code modification</li>
+          <li>C/C++, Python, Arduino IDE</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Design & Research</h3>
+        <ul>
+          <li>Fusion 360, Rhino, Blender</li>
+          <li>Figma, Adobe Creative Suite</li>
+          <li>Couture sewing & pattern making</li>
+          <li>UX research & usability testing</li>
+          <li>Technical documentation</li>
+          <li>System architecture mapping</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Exhibitions</h3>
+        <ul>
+          <li>DFX Thesis Exhibition, 2026</li>
+          <li>df open show, 2024 & 2025</li>
+          <li>SITE Gallery, 2022</li>
+          <li>SAIC BFA Show, 2022</li>
+          <li>SAIC Fashion Show, 2022</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Awards</h3>
+        <ul>
+          <li>Dr. Sara Diamond Scholarship</li>
+          <li>OCAD U Graduate Scholarship</li>
+          <li>SAIC Body Builder Time Award</li>
+          <li>SAIC Creative Honors Scholarship</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Education</h3>
+        <ul>
+          <li>MDes Digital Futures, OCAD U, 2026</li>
+          <li>BFA Fashion Design, SAIC, 2022</li>
+          <li>Google UX Design Certificate, 2023</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <ul>
+          <li><a href="mailto:thealujx@gmail.com">thealujx@gmail.com</a></li>
+          <li>Toronto, Canada</li>
+          <li>English (fluent) · Mandarin (native)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSION ARCHIVE -->
+  <div id="page-archive" class="page">
+    <button class="back-btn" onclick="showPage('home')">← Home</button>
+    <h1 class="proj-h1" style="margin-bottom:8px;">Passion Archive</h1>
+    <p style="font-size:0.85rem; color:var(--soft); margin-bottom:44px; max-width:480px; line-height:1.85;">
+      3D printed pots and tools designed for my tropical plant collection — where digital fabrication meets living things.
+    </p>
+    <div class="archive-hero-grid">
+      <a href="https://makerworld.com/zh/models/2113811-theapot-self-watering-pot-for-plants#profileId-2287200" target="_blank" class="archive-card">
+        <div class="archive-card-img placeholder" style="background:linear-gradient(150deg,#0C1C14,#142E22);"><span>Add photo</span></div>
+        <div class="archive-card-info"><strong>Theapot</strong><span>Self-watering cache pot for tropical houseplants</span><span class="archive-card-cta">See on Makerworld ↗</span></div>
+      </a>
+      <a href="https://makerworld.com/zh/models/2113873-theapot-self-watering-pot-christmas-edition#profileId-2287260" target="_blank" class="archive-card">
+        <div class="archive-card-img placeholder" style="background:linear-gradient(150deg,#1E0808,#3C1212);"><span>Add photo</span></div>
+        <div class="archive-card-info"><strong>Theapot — Xmas Edition</strong><span>Festive self-watering pot</span><span class="archive-card-cta">See on Makerworld ↗</span></div>
+      </a>
+      <a href="https://makerworld.com/zh/models/2117927-mini-yu-miao-cang-seed-starting-alocasia-corm-nurs#profileId-2292169" target="_blank" class="archive-card">
+        <div class="archive-card-img placeholder" style="background:linear-gradient(150deg,#0E1628,#1A2040);"><span>Add photo</span></div>
+        <div class="archive-card-info"><strong>Mini Nursery</strong><span>Seed starting & Alocasia corm propagation</span><span class="archive-card-cta">See on Makerworld ↗</span></div>
+      </a>
+      <a href="https://makerworld.com/zh/models/2659527-ultimate-self-watering-pot-moss-pole-modular#profileId-2941560" target="_blank" class="archive-card">
+        <div class="archive-card-img placeholder" style="background:linear-gradient(150deg,#14102A,#241840);"><span>Add photo</span></div>
+        <div class="archive-card-info"><strong>Ultimate Pot + Moss Pole</strong><span>Self-watering pot with modular moss pole</span><span class="archive-card-cta">See on Makerworld ↗</span></div>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const projects = {
+  catlike: {
+    title: 'CatLike: Emotion-Responsive Wearables',
+    year: '2024–2026', type: 'MDes Thesis', tags: 'Wearable Technology · Soft Robotics · Physical Computing',
+    desc: `Inspired by piloerection — the involuntary bristling of a cat's fur — CatLike is a series of pneumatic wearables that externalise physiological affect.\n\nTwo prototypes compare body location: headwear responding to heart rate variability, and footwear responding to plantar pressure. Signal voluntariness shapes the felt experience of wearing.\n\nThe project developed a novel fabrication technique: repurposing a Bambu FDM printer as a precision heat-sealing machine for ultra-thin TPU film.\n\nExhibited at df open show 2024 & 2025, DFX 2026.`,
+    facts: [
+      { label: 'Year', value: '2024–2026' },
+      { label: 'Institution', value: 'OCAD University — MDes Digital Futures' },
+      { label: 'Supervisors', value: 'Kate Hartman & Nick Puckett' },
+      { label: 'Materials', value: 'TPU film, ESP32-S3, micro air pumps, Velostat, pulse sensor' },
+      { label: 'Exhibitions', value: 'df open show 2024 & 2025 · DFX 2026' },
+    ],
+    placeholders: [],
+    images: [
+      'image/Catlike/1.jpg',
+      'image/Catlike/1.1.gif',
+      'image/Catlike/1.2.gif',
+      'image/Catlike/2.png',
+      'image/Catlike/2.1.png',
+      'image/Catlike/2AnnotatedFootwear.png',
+      'image/Catlike/3.jpg',
+      'image/Catlike/3.1.png',
+      'image/Catlike/3.2.png',
+      'image/Catlike/3Annotated%20Headwear.png',
+      'image/Catlike/cl%20headwear.gif'
+    ],
+    link: null,
+  },
+  sostrong: {
+    title: 'So STRONG',
+    year: '2025', type: 'Wearable Technology', tags: 'EMG · Pneumatic Inflatable · Physical Computing',
+    desc: `So STRONG is an EMG-controlled inflatable bicep wearable that amplifies the wearer's sense of muscular strength. Surface electromyography (EMG) sensors detect muscle contraction in the bicep, triggering pneumatic inflation of a soft TPU bladder worn over the arm.\n\nThe harder you flex, the bigger you get — externalizing the invisible effort of exertion into a visible, physical transformation on the body. The project explores the boundary between genuine physiological signal and performative gesture.`,
+    facts: [
+      { label: 'Year', value: '2025' },
+      
+      { label: 'Materials', value: 'EMG sensors, ESP32, micro air pump, TPU film, fabric' },
+    ],
+    images: [
+      { grid: [
+        'image/MainPage/SoStrong/Josh.gif',
+        'image/So%20STRONG/Oliv.gif',
+        'image/So%20STRONG/Saber.gif',
+        'image/So%20STRONG/lidya.gif'
+      ]}
+    ],
+    link: 'https://blogs.ocaduwebspace.ca/digf-5009-501-2025wi/2026/04/27/so-strong/',
+  },
+  allyoucanseal: {
+    title: 'All You Can Seal',
+    year: '2026', type: 'Workshop · Open Source', tags: 'TPU Heat-Sealing · Digital Fabrication · Knowledge Sharing',
+    desc: `All You Can Seal is a hands-on workshop teaching participants how to make inflatables using a hacked consumer 3D printer as a precision heat-sealing machine for ultra-thin TPU film.\n\nDeveloped from the novel fabrication technique created during the CatLike thesis, this workshop packages that knowledge into an accessible, step-by-step format. Participants learn to modify G-code, set up a Bambu A1 Mini for heat-sealing at 260°C, and design custom pneumatic structures — all without industrial equipment.\n\nThe workshop materials and source code are open-sourced on GitHub.`,
+    facts: [
+      { label: 'Year', value: '2026' },
+      { label: 'Type', value: 'Workshop · Open Source' },
+      { label: 'Technique', value: '260°C nozzle, Z=−0.15mm, M221 S120, 3mm/s travel' },
+      { label: 'Equipment', value: 'Bambu A1 Mini, TPU film (0.03mm)' },
+    ],
+    images: [
+      'image/All%20You%20Can%20Seal/1-2026-03-05%2018.32.29.png',
+      'image/All%20You%20Can%20Seal/2.2026-03-05%2023.29.02.png',
+      'image/All%20You%20Can%20Seal/3..png',
+      'image/All%20You%20Can%20Seal/4Finalseal.png',
+      { grid: [
+        'image/All%20You%20Can%20Seal/MVI_2111.gif',
+        'image/All%20You%20Can%20Seal/MVI_2113.gif',
+        'image/All%20You%20Can%20Seal/MVI_2114.gif'
+      ]},
+      'image/All%20You%20Can%20Seal/InflatedCloseUpHW.jpg'
+    ],
+    link: 'https://github.com/Thearetically-speaking/All-you-can-seal/tree/main',
+  },
+  safari: { title: 'Play Safari Flutter High', year: '2024', type: 'Interactive Media', tags: 'Play · Animal Behaviour · Game', desc: 'An experimental play system drawing on animal behaviour and embodied game mechanics.', facts: [{ label: 'Year', value: '2024' }], images: [
+    { video: 'https://player.vimeo.com/video/1035711103' },
+    'image/Play%20Safari-Flutter%20High/1.png',
+    'image/Play%20Safari-Flutter%20High/4231733184209_-1024x786.webp'
+  ], link: 'https://blogs.ocaduwebspace.ca/digf-6037-301-2024fa/2024/12/03/play-safari-flutter-high/' },
+  gazed: { title: 'Gazed', year: '2024', type: 'Interactive Media', tags: 'Surveillance · Critical Design', desc: 'A critical design work interrogating visibility and the watched body.', facts: [
+    { label: 'Year', value: '2024' },
+    { label: 'Collaborator', value: '<a href="https://blogs.ocaduwebspace.ca/digf-6037-301-2024fa/author/3211498/" target="_blank" rel="noopener">Golnoush Mir Salari</a>' }
+  ], images: [
+    { video: 'https://www.youtube.com/embed/DXO9GiAxE5A' },
+    'image/Gazed/1.exp-3-cover-warm-1-png.webp',
+    'image/Gazed/cd8a37d73c4f4cdc89115f3d2ea95f75-png.webp',
+    'image/Gazed/cd8a37d73c4f4cdc89115f3d2ea95f75-2-png.webp',
+    'image/Gazed/mechanism-2-1024x602.webp',
+    'image/Gazed/Untitled-Sketch-2_b-png.webp',
+    'image/Gazed/IMG_3300-1-768x1024.webp'
+  ], link: 'https://blogs.ocaduwebspace.ca/digf-6037-301-2024fa/2024/11/12/gazed/' },
+  escapism: { title: 'Escapism in Echo', year: '2024', type: 'Interactive Media', tags: 'Sound · Space · Reflection', desc: 'A meditative sound installation examining echo as psychological refuge.', facts: [
+    { label: 'Year', value: '2024' },
+    { label: 'Collaborators', value: '<a href="https://blogs.ocaduwebspace.ca/digf-6037-301-2024fa/author/3218460/" target="_blank" rel="noopener">Wenjia Quan</a> · <a href="https://blogs.ocaduwebspace.ca/digf-6037-301-2024fa/author/3218189/" target="_blank" rel="noopener">Peter Oke</a>' }
+  ], images: [
+    'image/Escapism%20in%20Echo/1.webp',
+    'image/Escapism%20in%20Echo/2_20241022014644-1024x789.webp',
+    'image/Escapism%20in%20Echo/2-square.webp',
+    'image/Escapism%20in%20Echo/3.webp'
+  ], link: 'https://blogs.ocaduwebspace.ca/digf-6037-301-2024fa/2024/10/22/escapism-in-echo/' },
+  pawer: { title: 'PawerUP', year: '2024', type: 'Interactive Media', tags: 'Physical Computing · Embodied Interaction', desc: 'An interactive installation exploring embodied animal movement as interface.', facts: [{ label: 'Year', value: '2024' }], images: [
+    { video: 'https://player.vimeo.com/video/1012304098' },
+    'image/PawerUP/1cat-scratcher-1024x912.png',
+    'image/PawerUP/2WechatIMG1741-edited.webp',
+    'image/PawerUP/3WechatIMG1742-1024x768.webp',
+    'image/PawerUP/4WechatIMG1739-edited.webp',
+    'image/PawerUP/5PawerUp-Sketch_bb-1024x597.webp'
+  ], link: 'https://blogs.ocaduwebspace.ca/digf-6037-301-2024fa/2024/09/24/pawer-up/' },
+  beyourguide: { title: 'Be your Guide', year: '2023', type: 'Inclusive Innovation · Footwear', tags: 'Accessibility · Wearable · Smart Footwear', desc: `Improving the independent mobility of visually impaired people by combining innovative technology with everyday footwear. Equipped with infrared sensors, haptic feedback, and vibrating alerts for traffic signals, this smart shoe enhances city navigation.\n\nThe project began with extensive research into visually impaired communities — studying vlogs by blind creators, mapping pain points in urban street crossing through sequence modelling, and developing personas grounded in real challenges of independent commuting.\n\nThe design gives visually impaired individuals freedom and confidence in every step they take.`, facts: [{ label: 'Year', value: '2023 Fall' }, { label: 'Type', value: 'Inclusive Innovation · Footwear' }, { label: 'Methods', value: 'Observation · Affinity diagram · Persona · Sequence model · Need analysis' }, { label: 'Technology', value: 'Infrared sensors · Haptic feedback · Vibrating alerts' }], images: [
+    'image/Be%20your%20Guide/background.png',
+    'image/Be%20your%20Guide/PAINPOINTS%20AND%20PERSONA.png',
+    'image/Be%20your%20Guide/PERSONA.png',
+    'image/Be%20your%20Guide/sequence%20modle%20of%20crossing%20road%20and%20how%20might%20we.png',
+    'image/Be%20your%20Guide/Cueing%20mechanism.png',
+    'image/Be%20your%20Guide/Cueing%20mechanism-1.png',
+    'image/Be%20your%20Guide/component%20of%20the%20shoe%20and%20design.png'
+  ], link: null },
+  mindfulchaos: { title: 'MindfulChaos', year: '2023', type: 'Game Design', tags: 'ADHD · 3D Character · Simulation', desc: `An adult ADHD cleaning simulation game aimed at changing common misconceptions about adult ADHD. Adult ADHD is often overshadowed by the attention given to children and remains widely misunderstood.\n\nThrough the immersive experience of a simple daily task — tidying up — the game offers players a glimpse into the daily struggles of adults with ADHD. Grounded in diary studies tracking real ADHD cleaning trails, the project designed a 3D-animated character and game mechanics that model executive function challenges.\n\nIt aims to foster deeper understanding and empathy, encouraging players to be more supportive and aware of the unique challenges faced by adults with ADHD.`, facts: [{ label: 'Year', value: '2023 Fall' }, { label: 'Type', value: 'Game Design' }, { label: 'Methods', value: 'Diary studies · Persona research · 3D character design · Storyboarding' }], images: [
+    'image/MindfulChaos/1.cover.png',
+    'image/MindfulChaos/2.infographic.png',
+    'image/MindfulChaos/3.Interview%20and%20Affinity%20Diagram.png',
+    'image/MindfulChaos/5.ADHD%20Persona.png',
+    'image/MindfulChaos/6.non%20adhd%20Persona.png',
+    'image/MindfulChaos/7.Observation.png',
+    'image/MindfulChaos/8.Ideation.png',
+    'image/MindfulChaos/9.findings.png',
+    'image/MindfulChaos/11%E3%80%82design1.png',
+    'image/MindfulChaos/12.design2.png',
+    'image/MindfulChaos/13.design3.png',
+    'image/MindfulChaos/14.design4.png'
+  ], link: null },
+  artexplorer: { title: 'ArtExplorer', year: '2022–2023', type: 'Service Design · Mobile App', tags: 'UX · AR Navigation · Museum Research', desc: `A museum research companion for art students at the School of the Art Institute of Chicago (SAIC), designed to revolutionize field research at the Art Institute of Chicago.\n\nThe app integrates real-time navigation with personalized routes, artwork recognition via camera, and comprehensive research tools — empowering students to navigate the vast collection and conduct in-depth research efficiently.\n\nThe design process followed a full Design Thinking framework: Discover, Define, Ideate, and Design — including SWOT analysis, user journey mapping, competitive audits, and usability testing with five SAIC students.`, facts: [{ label: 'Year', value: '2022 Fall – 2023 Spring' }, { label: 'Type', value: 'Service Design · Mobile App' }, { label: 'Methods', value: 'SWOT · User journey mapping · Competitive audit · Hi-fi prototyping · Usability testing' }], images: [
+    'image/ArtExploer/Cover%20Page.png',
+    'image/ArtExploer/Background%20%26%20Questionnaire.png',
+    'image/ArtExploer/Interview%20%26%20affinity%20diagram.png',
+    'image/ArtExploer/HMW%20%26%20Competitive%20Analysis.png',
+    'image/ArtExploer/HMW%20%26%20Competitive%20Analysis-1.png',
+    'image/ArtExploer/Persona%20%26%20user%20journey%20map.png',
+    'image/ArtExploer/Persona%20%26%20user%20journey%20map%20%26%20Problem%20Statement.png',
+    'image/ArtExploer/ia.png',
+    'image/ArtExploer/Wireframe%20and%20Lo%20fi.png',
+    'image/ArtExploer/hi-fi.png',
+    'image/ArtExploer/hi-fi-1.png'
+  ], link: null },
+  etoile: { title: "L'Étoile's Shoes", year: '2021–2022', type: 'BFA Thesis · Footwear · Installation', tags: 'Handmade Footwear · VR · Critical Fashion', desc: `A BFA thesis installation illuminating the frequently disregarded violence within the realm of ballet, inspired by the historical exploitation of 19th-century ballerinas.\n\nThree pairs of handmade ballet shoes — constructed from leather, mesh, beads, and epoxy resin — are suspended above a sand-covered stage and animated by VR interaction. Visitors occupy two roles: observers witness the shoes move as spectators watching ballet in a theatre; performers don VR headsets to control the shoes by matching dance poses.\n\nThe pace of execution dictates the speed of the dancing shoes and the rate at which sand falls — tracing the marks of labour on a white floor. The installation challenges preconceived notions, compelling viewers to confront the concealed violence and sacrifices beneath the art form's graceful exterior.\n\nExhibited at SITE Gallery and SAIC BFA Show, 2022.`, facts: [{ label: 'Year', value: '2021 Fall – 2022 Summer' }, { label: 'Institution', value: 'SAIC, BFA Fashion Design' }, { label: 'Materials', value: 'Leather, mesh, beads, epoxy resin, VR headsets, sand' }, { label: 'Exhibitions', value: 'SITE Gallery 2022 · SAIC BFA Show 2022 · SAIC Fashion Show 2022' }], images: [
+    'image/L\'%C3%89toile\'s%20Shoes/Impressions%20of%20ballet%EF%BC%9F.png',
+    'image/L\'%C3%89toile\'s%20Shoes/violence%20behind%20ballet.png',
+    'image/L\'%C3%89toile\'s%20Shoes/Ideation.png',
+    'image/L\'%C3%89toile\'s%20Shoes/dd.png',
+    'image/L\'%C3%89toile\'s%20Shoes/finished%20footwear%20and%20making%20process.png',
+    'image/L\'%C3%89toile\'s%20Shoes/from%20runway%20to%20gallery.png',
+    'image/L\'%C3%89toile\'s%20Shoes/from%20runway%20to%20gallery-1.png',
+    'image/L\'%C3%89toile\'s%20Shoes/from%20runway%20to%20gallery-2.png'
+  ], link: 'https://sites.saic.edu/fashion2022/artists/thea-lu/' },
+};
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('#proj-nav a').forEach(a => a.classList.remove('active'));
+  const archLink = document.getElementById('archive-link');
+  if (archLink) archLink.classList.toggle('active', id === 'archive');
+  window.scrollTo(0, 0);
+}
+
+function openProject(id) {
+  const p = projects[id];
+  if (!p) return;
+  document.getElementById('proj-title').textContent = p.title;
+  document.getElementById('proj-meta').innerHTML =
+    `<span>${p.year}</span><span style="opacity:.3">·</span><span>${p.type}</span><span style="opacity:.3">·</span><span style="opacity:.55">${p.tags}</span>`;
+  const media = document.getElementById('proj-media');
+  media.innerHTML = '';
+  (p.images || []).forEach(item => {
+    if (typeof item === 'string') {
+      const img = document.createElement('img');
+      img.src = item; img.alt = p.title;
+      media.appendChild(img);
+    } else if (item && item.grid) {
+      const grid = document.createElement('div');
+      grid.className = 'proj-media-grid';
+      item.grid.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src; img.alt = p.title;
+        grid.appendChild(img);
+      });
+      media.appendChild(grid);
+    } else if (item && item.video) {
+      const wrap = document.createElement('div');
+      wrap.className = 'proj-video';
+      const iframe = document.createElement('iframe');
+      iframe.src = item.video;
+      iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
+      iframe.setAttribute('allowfullscreen', '');
+      iframe.setAttribute('loading', 'lazy');
+      wrap.appendChild(iframe);
+      media.appendChild(wrap);
+    }
+  });
+  (p.placeholders || []).forEach(pl => {
+    const div = document.createElement('div');
+    div.className = 'placeholder';
+    div.style.cssText = `background:${pl.bg};aspect-ratio:${pl.ratio};`;
+    div.innerHTML = `<span>Add photo</span>`;
+    media.appendChild(div);
+  });
+  document.getElementById('proj-desc').innerHTML = p.desc.split('\n\n').map(t => `<p>${t}</p>`).join('');
+  document.getElementById('proj-facts').innerHTML = p.facts.map(f =>
+    `<div><span class="fact-label">${f.label}</span><span class="fact-value">${f.value}</span></div>`).join('');
+  document.getElementById('proj-link').innerHTML = p.link
+    ? `<a class="ext-link" href="${p.link}" target="_blank">View documentation ↗</a>` : '';
+  document.querySelectorAll('#proj-nav a').forEach(a => a.classList.toggle('active', a.dataset.id === id));
+  showPage('project');
+}
+
+// Catlike hero slideshow
+(function() {
+  const slides = document.querySelectorAll('.catlike-slide');
+  if (slides.length < 2) return;
+  let current = 0;
+  setInterval(() => {
+    slides[current].classList.remove('catlike-active');
+    slides[current].style.display = 'none';
+    current = (current + 1) % slides.length;
+    slides[current].style.display = 'block';
+    // Force reflow before adding active class for transition
+    slides[current].offsetHeight;
+    slides[current].classList.add('catlike-active');
+  }, 4000);
+})();
+</script>
+</body>
+</html>
