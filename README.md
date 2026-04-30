@@ -14,3 +14,4 @@
 3. Framework preset: Other.
 4. Build and Output: leave empty (static site).
 5. Deploy.
+# deploy
